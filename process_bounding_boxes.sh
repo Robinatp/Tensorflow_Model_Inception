@@ -1,4 +1,5 @@
 #Convert the XML files for bounding box annotations into a single CSV.
+#generate the imagenet_2012_bounding_boxes.csv from decode xml
 WORK_DIR=/workspace/zhangbin/master/models/research/inception/inception
 SCRATCH_DIR=/workspace/zhangbin/dataset_robin/imagenet-data/raw-data
 LABELS_FILE="${WORK_DIR}/data/imagenet_lsvrc_2015_synsets.txt"
