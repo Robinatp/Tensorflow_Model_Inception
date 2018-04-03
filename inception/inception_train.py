@@ -30,6 +30,10 @@ import tensorflow as tf
 from inception import image_processing
 from inception import inception_model as inception
 from inception.slim import slim
+from tensorflow.python.framework import graph_util
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.platform import gfile
+from tensorflow.python.util import compat
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -177,6 +181,12 @@ def _average_gradients(tower_grads):
     average_grads.append(grad_and_var)
   return average_grads
 
+def save_graph_to_file(sess, graph, graph_file_name):
+  output_graph_def = graph_util.convert_variables_to_constants(
+      sess, graph.as_graph_def(), ["logits/predictions"])
+  with gfile.FastGFile(graph_file_name, 'wb') as f:
+    f.write(output_graph_def.SerializeToString())
+  return
 
 def train(dataset):
   """Train on dataset for a number of steps."""
@@ -355,3 +365,4 @@ def train(dataset):
       if step % 5000 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
         saver.save(sess, checkpoint_path, global_step=step)
+        save_graph_to_file(sess, sess.graph, checkpoint_path+"frozen_graph.pb")

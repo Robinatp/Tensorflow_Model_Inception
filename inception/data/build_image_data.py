@@ -61,6 +61,23 @@ contains the following fields:
     e.g. 'dog'
 
 If your data set involves bounding boxes, please look at build_imagenet_data.py.
+## Note the locations of the train and validation data.
+TRAIN_DIR=/home/zhangbin/GitHub/models/research/inception/inception/data/demo_picture/train/
+
+VALIDATION_DIR=/home/zhangbin/GitHub/models/research/inception/inception/data/demo_picture/validation/
+LABELS_FILE= /home/zhangbin/GitHub/models/research/inception/inception/data/demo_picture/labels.txt
+
+# location to where to save the TFRecord data.
+OUTPUT_DIRECTORY=/home/zhangbin/GitHub/models/research/inception/inception/data/demo_picture/
+
+python build_image_data.py \
+  --train_directory=demo_picture/train/ \
+  --validation_directory=demo_picture/validation/ \
+  --output_directory=demo_picture/ \
+  --labels_file=demo_picture/labels.txt \
+  --train_shards=10 \
+  --validation_shards=4 \
+  --num_threads=2
 """
 from __future__ import absolute_import
 from __future__ import division
