@@ -29,35 +29,7 @@ model architecture.
 
 ![Inception-v3 Architecture](g3doc/inception_v3_architecture.png)
 
-## Description of Code
 
-The code base provides three core binaries for:
-
-*   Training an Inception v3 network from scratch across multiple GPUs and/or
-    multiple machines using the ImageNet 2012 Challenge training data set.
-*   Evaluating an Inception v3 network using the ImageNet 2012 Challenge
-    validation data set.
-*   Retraining an Inception v3 network on a novel task and back-propagating the
-    errors to fine tune the network weights.
-
-The training procedure employs synchronous stochastic gradient descent across
-multiple GPUs. The user may specify the number of GPUs they wish to harness. The
-synchronous training performs *batch-splitting* by dividing a given batch across
-multiple GPUs.
-
-The training set up is nearly identical to the section [Training a Model Using
-Multiple GPU Cards](https://www.tensorflow.org/tutorials/deep_cnn/index.html#launching_and_training_the_model_on_multiple_gpu_cards)
-where we have substituted the CIFAR-10 model architecture with Inception v3. The
-primary differences with that setup are:
-
-*   Calculate and update the batch-norm statistics during training so that they
-    may be substituted in during evaluation.
-*   Specify the model architecture using a (still experimental) higher level
-    language called TensorFlow-Slim.
-
-For more details about TensorFlow-Slim, please see the [Slim README](inception/slim/README.md). Please note that this higher-level language is still
-*experimental* and the API may change over time depending on usage and
-subsequent research.
 
 ## Getting Started
 
@@ -777,78 +749,3 @@ one will need to substantially alter this model and new considerations need to
 be factored into hyperparameter tuning. See [Large Scale Distributed Deep
 Networks](http://research.google.com/archive/large_deep_networks_nips2012.html)
 for a discussion in this domain.
-
-### Adjusting Memory Demands
-
-Training this model has large memory demands in terms of the CPU and GPU. Let's
-discuss each item in turn.
-
-GPU memory is relatively small compared to CPU memory. Two items dictate the
-amount of GPU memory employed -- model architecture and batch size. Assuming
-that you keep the model architecture fixed, the sole parameter governing the GPU
-demand is the batch size. A good rule of thumb is to try employ as large of
-batch size as will fit on the GPU.
-
-If you run out of GPU memory, either lower the `--batch_size` or employ more
-GPUs on your desktop. The model performs batch-splitting across GPUs, thus N
-GPUs can handle N times the batch size of 1 GPU.
-
-The model requires a large amount of CPU memory as well. We have tuned the model
-to employ about ~20GB of CPU memory. Thus, having access to about 40 GB of CPU
-memory would be ideal.
-
-If that is not possible, you can tune down the memory demands of the model via
-lowering `--input_queue_memory_factor`. Images are preprocessed asynchronously
-with respect to the main training across `--num_preprocess_threads` threads. The
-preprocessed images are stored in shuffling queue in which each GPU performs a
-dequeue operation in order to receive a `batch_size` worth of images.
-
-In order to guarantee good shuffling across the data, we maintain a large
-shuffling queue of 1024 x `input_queue_memory_factor` images. For the current
-model architecture, this corresponds to about 4GB of CPU memory. You may lower
-`input_queue_memory_factor` in order to decrease the memory footprint. Keep in
-mind though that lowering this value drastically may result in a model with
-slightly lower predictive accuracy when training from scratch. Please see
-comments in [`image_processing.py`](inception/image_processing.py) for more details.
-
-## Troubleshooting
-
-#### The model runs out of CPU memory.
-
-In lieu of buying more CPU memory, an easy fix is to decrease
-`--input_queue_memory_factor`. See [Adjusting Memory Demands](#adjusting-memory-demands).
-
-#### The model runs out of GPU memory.
-
-The data is not able to fit on the GPU card. The simplest solution is to
-decrease the batch size of the model. Otherwise, you will need to think about a
-more sophisticated method for specifying the training which cuts up the model
-across multiple `session.run()` calls or partitions the model across multiple
-GPUs. See [Using GPUs](https://www.tensorflow.org/how_tos/using_gpu/index.html)
-and [Adjusting Memory Demands](#adjusting-memory-demands) for more information.
-
-#### The model training results in NaN's.
-
-The learning rate of the model is too high. Turn down your learning rate.
-
-#### I wish to train a model with a different image size.
-
-The simplest solution is to artificially resize your images to `299x299` pixels.
-See [Images](https://www.tensorflow.org/api_docs/python/image.html) section for
-many resizing, cropping and padding methods. Note that the entire model
-architecture is predicated on a `299x299` image, thus if you wish to change the
-input image size, then you may need to redesign the entire model architecture.
-
-#### What hardware specification are these hyper-parameters targeted for?
-
-We targeted a desktop with 128GB of CPU ram connected to 8 NVIDIA Tesla K40 GPU
-cards but we have run this on desktops with 32GB of CPU ram and 1 NVIDIA Tesla
-K40. You can get a sense of the various training configurations we tested by
-reading the comments in [`inception_train.py`](inception/inception_train.py).
-
-#### How do I continue training from a checkpoint in distributed setting?
-
-You only need to make sure that the checkpoint is in a location that can be
-reached by all of the `ps` tasks. By specifying the checkpoint location with
-`--train_dir` , the `ps` servers will load the checkpoint before commencing
-training.
