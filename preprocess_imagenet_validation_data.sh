@@ -1,10 +1,10 @@
+# Preprocess the validation data by moving the images into the appropriate
+# sub-directory based on the label (synset:imagenet_2012_validation_synset_labels.txt) of the image.
+# There are 1000 sub-directory(order by imagenet_lsvrc_2015_synsets.txt),every sub-directory has 50 images,the total of images is 50000
+
 # Note the locations of the train and validation data.
 WORK_DIR=/workspace/zhangbin/master/models/research/inception/inception
-
 VALIDATION_DIRECTORY=/workspace/zhangbin/dataset_robin/imagenet-data/raw-data/ILSVRC2012_img_val/
-
-# Preprocess the validation data by moving the images into the appropriate
-# sub-directory based on the label (synset) of the image.ls
 
 echo "Organizing the validation data into sub-directories."
 PREPROCESS_VAL_SCRIPT="${WORK_DIR}/data/preprocess_imagenet_validation_data.py"
