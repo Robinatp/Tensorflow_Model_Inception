@@ -1,6 +1,20 @@
 # Build the TFRecords version of the ImageNet data.
-WORK_DIR=/workspace/zhangbin/master/models/research/inception/inception
+# convert the ILSVRC2012 imagenet dataset to tfrecord,
+# The final output of this script appears as such:
+#
+#   data_dir/train-00000-of-01024
+#   data_dir/train-00001-of-01024
+#    ...
+#   data_dir/train-01023-of-01024
+#
+# and
+#
+#   data_dir/validation-00000-of-00128
+#   data_dir/validation-00001-of-00128
+#   ...
+#   data_dir/validation-00127-of-00128
 
+WORK_DIR=/workspace/zhangbin/master/models/research/inception/inception
 BUILD_SCRIPT="${WORK_DIR}/data/build_imagenet_data.py"
 
 TRAIN_DIRECTORY=/workspace/zhangbin/dataset_robin/imagenet-data/raw-data/ILSVRC2012_img_train/
